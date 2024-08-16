@@ -4,28 +4,6 @@ import serverino;
 
 import serverino_db_session.models;
 
-const MIGRATIONS = [
-    q"[
-        CREATE TABLE sessions(
-          id          VARCHAR PRIMARY KEY,
-          accessedAt  TIMESTAMP DEFAULT current_timestamp,
-          createdAt   TIMESTAMP DEFAULT current_timestamp,
-          updatedAt   TIMESTAMP DEFAULT current_timestamp
-        )
-      ]",
-    q"[
-        CREATE TABLE sessionData(
-          id BIGSERIAL PRIMARY KEY,
-          sessionId    VARCHAR,
-          key          VARCHAR,
-          value        TEXT,
-          createdAt    TIMESTAMP DEFAULT current_timestamp,
-          updatedAt    TIMESTAMP DEFAULT current_timestamp,
-          unique(sessionId, key)
-        )
-    ]"
-];
-
 struct DbSession
 {
     import std.string;

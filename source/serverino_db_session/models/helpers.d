@@ -9,6 +9,30 @@ public
     import dpq2_serialization;
 }
 
+import serverino_db_session.models.db_versions;
+
+const MIGRATIONS = [
+    q"[
+        CREATE TABLE sessions(
+          id          VARCHAR PRIMARY KEY,
+          accessedAt  TIMESTAMP DEFAULT current_timestamp,
+          createdAt   TIMESTAMP DEFAULT current_timestamp,
+          updatedAt   TIMESTAMP DEFAULT current_timestamp
+        )
+      ]",
+    q"[
+        CREATE TABLE sessionData(
+          id BIGSERIAL PRIMARY KEY,
+          sessionId    VARCHAR,
+          key          VARCHAR,
+          value        TEXT,
+          createdAt    TIMESTAMP DEFAULT current_timestamp,
+          updatedAt    TIMESTAMP DEFAULT current_timestamp,
+          unique(sessionId, key)
+        )
+    ]"
+];
+
 class ModelException : Exception
 {
     this(string message, string file = __FILE__, size_t line = __LINE__)
