@@ -63,3 +63,15 @@ void signupHandler(Request request, Output output)
     // ..
 }
 ```
+
+## Destroy the session
+
+```d
+@endpoint @route!"/logout"
+void logoutHandler(Request request, Output output)
+{
+    session.destroy;
+    output.addHeader("location", "/");
+    output.status = 302;
+}
+```

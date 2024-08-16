@@ -4,13 +4,64 @@ import serverino;
 
 import serverino_db_session.models;
 
+const MIGRATIONS = [
+    q"[
+        CREATE TABLE sessions(
+          id          VARCHAR PRIMARY KEY,
+          accessedAt  TIMESTAMP DEFAULT current_timestamp,
+          createdAt   TIMESTAMP DEFAULT current_timestamp,
+          updatedAt   TIMESTAMP DEFAULT current_timestamp
+        )
+      ]",
+    q"[
+        CREATE TABLE sessionData(
+          id BIGSERIAL PRIMARY KEY,
+          sessionId    VARCHAR,
+          key          VARCHAR,
+          value        TEXT,
+          createdAt    TIMESTAMP DEFAULT current_timestamp,
+          updatedAt    TIMESTAMP DEFAULT current_timestamp,
+          unique(sessionId, key)
+        )
+    ]"
+];
+
+void handleMigrations()
+{
+    import std.conv;
+    DbVersion.initialize; 
+    auto currentVersion = DbVersion.get;
+
+    foreach(idx; 0 .. MIGRATIONS.length.to!int)
+    {
+        // Already applied version
+        if (idx + 1 <= currentVersion)
+            continue;
+
+        execute(MIGRATIONS[idx]);
+        DbVersion.set(idx+1);
+    }
+}
+
+static this()
+{
+    handleMigrations();
+}
+
 struct DbSession
 {
+    import std.string;
+
     string id;
     AuthenticityToken authenticityToken;
-
+    Request request;
+    Output output;
+    
     this(Request request, Output output)
     {
+        this.request = request;
+        this.output = output;
+
         // Get Session ID from cookie
         id = request.cookie.read("sid", "");
         if (id.empty)
@@ -44,6 +95,8 @@ struct DbSession
     void destroy()
     {
         Session.delete_(id);
+        id = "";
+        output.setCookie(Cookie("sid", id));
     }
 }
 

@@ -5,4 +5,5 @@ public
     import serverino_db_session.models.helpers;
     import serverino_db_session.models.sessions;
     import serverino_db_session.models.session_data;
+    import serverino_db_session.models.db_versions;
 }
