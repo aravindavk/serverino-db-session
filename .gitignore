@@ -1,0 +1,17 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/serverino-db-session
+serverino-db-session.so
+serverino-db-session.dylib
+serverino-db-session.dll
+serverino-db-session.a
+serverino-db-session.lib
+serverino-db-session-test-*
+*.exe
+*.pdb
+*.o
+*.obj
+*.lst
+*.a

@@ -1,0 +1,7 @@
+name "serverino-db-session"
+description "Postgres based session store for Serverino web framework"
+authors "Aravinda VK <mail@aravindavk.in>"
+copyright "Copyright © 2024, Aravinda VK <mail@aravindavk.in>"
+license "MIT"
+dependency "serverino" version="~>0.7.10"
+dependency "dpq2-serialization" version="~>0.2.1"
