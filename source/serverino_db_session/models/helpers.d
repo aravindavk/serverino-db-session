@@ -25,9 +25,27 @@ void enforceDB(bool cond, string message)
 
 Connection conn;
 
+void handleMigrations()
+{
+    import std.conv;
+    DbVersion.initialize; 
+    auto currentVersion = DbVersion.get;
+
+    foreach(idx; 0 .. MIGRATIONS.length.to!int)
+    {
+        // Already applied version
+        if (idx + 1 <= currentVersion)
+            continue;
+
+        execute(MIGRATIONS[idx]);
+        DbVersion.set(idx+1);
+    }
+}
+
 static this()
 {
     conn = new Connection(environment["DATABASE_URL"]);
+    handleMigrations();
 }
 
 string formatArgs(Targs...)(Targs args)
