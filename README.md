@@ -54,7 +54,7 @@ void signupHandler(Request request, Output output)
 {
     if (request.method == Request.Method.Get)
     {
-        auto csrfToken = session.authenticityToken.token;
+        auto csrfToken = session.authenticityToken.newToken;
         render("signup.html", csrfToken);
         return;
     }

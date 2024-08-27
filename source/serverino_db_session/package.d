@@ -4,7 +4,7 @@ import serverino;
 
 import serverino_db_session.models;
 
-struct DbSession
+class DbSession
 {
     import std.string;
 
@@ -13,20 +13,29 @@ struct DbSession
     Request request;
     Output output;
     
-    this(Request request, Output output)
+    this(Request request, Output output, bool existing = false)
     {
         this.request = request;
         this.output = output;
 
         // Get Session ID from cookie
         id = request.cookie.read("sid", "");
-        if (id.empty)
+        if (id.empty && !existing)
         {
             id = newRandom;
-            output.setCookie(Cookie("sid", id));
+            output.setCookie(Cookie("sid", id).sameSite(Cookie.SameSite.Strict));
         }
-        Session.create(id);
+
+        if (!id.empty)
+            Session.create(id);
+
         authenticityToken = new AuthenticityToken(this);
+    }
+
+    static DbSession existing(Request request, Output output)
+    {
+        auto sess = new DbSession(request, output, true);
+        return sess;
     }
 
     string get(string key, string defaultValue)
@@ -52,11 +61,11 @@ struct DbSession
     {
         Session.delete_(id);
         id = "";
-        output.setCookie(Cookie("sid", id));
+        output.setCookie(Cookie("sid", id).sameSite(Cookie.SameSite.Strict));
     }
 }
 
-string newRandom(int len = 32)
+private string newRandom(int len = 32)
 {
     import std.file;
     import std.digest;
@@ -82,11 +91,32 @@ class AuthenticityToken
         return sessionToken == token;
     }
 
-    string token()
+    string newToken()
     {
         sessionToken = newRandom(86);
         session.set("authenticity_token", sessionToken);
         return sessionToken;
+    }
+}
+
+void initializeServerinoSessionMigrations()
+{
+    import std.conv;
+    import std.process;
+
+    conn = new Connection(environment["DATABASE_URL"]);
+
+    DbVersion.initialize; 
+    auto currentVersion = DbVersion.get;
+
+    foreach(idx; 0 .. MIGRATIONS.length.to!int)
+    {
+        // Already applied version
+        if (idx + 1 <= currentVersion)
+            continue;
+
+        execute(MIGRATIONS[idx]);
+        DbVersion.set(idx+1);
     }
 }
 
