@@ -51,7 +51,11 @@ Connection conn;
 
 static this()
 {
-    conn = new Connection(environment["DATABASE_URL"]);
+    import std.string;
+
+    auto dbUrl = environment.get("DATABASE_URL", "");
+    if (!dbUrl.empty)
+        conn = new Connection(dbUrl);
 }
 
 string formatArgs(Targs...)(Targs args)

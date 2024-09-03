@@ -23,7 +23,7 @@ class DbSession
         if (id.empty && !existing)
         {
             id = newRandom;
-            output.setCookie(Cookie("sid", id).sameSite(Cookie.SameSite.Strict));
+            output.setCookie(Cookie("sid", id).sameSite(Cookie.SameSite.Strict).httpOnly);
         }
 
         if (!id.empty)
